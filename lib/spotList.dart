@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 
 class SpotList extends StatelessWidget {
   // This widget is the root of your application.
@@ -23,36 +26,40 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+
 class _MyHomePageState extends State<MyHomePage> {
   var _items = [];
 
   void _getItems() {
+    var url = "MOCKURL";
     //APIをたたいて、スポットの情報を全取得したい
-    var newItems = [
-      {"id": "oawjoifja", "name": "aaa"},
-      {"id": "oawjoifja", "name": "bbb"},
-      {"id": "oawjoifja", "name": "bbb"},
-      {"id": "oawjoifja", "name": "cafwea"},
-      {"id": "oawjoifja", "name": "afefaewf"},
-      {"id": "oawjoifja", "name": "afeawfe"},
-      {"id": "oawjoifja", "name": "afawef"},
-      {"id": "oawjoifja", "name": "awefaew"},
-      {"id": "oawjoifja", "name": "afwefae"},
-    ];
-
-    setState(() {
-      _items = newItems;
+    http.get(url).then((response){
+      print("Fetch API");
+      Map<String, dynamic> body = json.decode(response.body);
+      print(body);
+      setState((){
+        _items = body['data'];
+      });
     });
   }
-
+  Future<void> _refresh() async {
+    await Future.sync(() {
+        _getItems();
+    });
+  }
   @override
-  Widget build(BuildContext context) {
-    _getItems();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: ListView.builder(
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  Widget _getSpotChild() {
+    if(_items == null) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      return ListView.builder(
         itemCount: _items.length,
         itemBuilder: (context, int index) {
           return Padding(
@@ -61,7 +68,17 @@ class _MyHomePageState extends State<MyHomePage> {
               _items[index]["name"],
             ));
         },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
       ),
+      body: _getSpotChild(),
       floatingActionButton: FloatingActionButton(
         onPressed: _getItems,
         tooltip: 'Increment',
