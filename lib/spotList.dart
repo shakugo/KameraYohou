@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:kamera_yohou/register.dart';
 
 class SpotList extends StatelessWidget {
   // This widget is the root of your application.
@@ -13,6 +13,9 @@ class SpotList extends StatelessWidget {
         primarySwatch: Colors.red,
       ),
       home: MyHomePage(title: 'Spot List'),
+      routes: <String, WidgetBuilder>{
+        '/register': (_) => new Register(),
+      },
     );
   }
 }
@@ -26,27 +29,29 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-
 class _MyHomePageState extends State<MyHomePage> {
   var _items = [];
 
   void _getItems() {
-    var url = "MOCKURL";
+    var url =
+        "https://rabpde31gf.execute-api.ap-northeast-1.amazonaws.com/dev/mock";
     //APIをたたいて、スポットの情報を全取得したい
-    http.get(url).then((response){
+    http.get(url).then((response) {
       print("Fetch API");
       Map<String, dynamic> body = json.decode(response.body);
       print(body);
-      setState((){
+      setState(() {
         _items = body['data'];
       });
     });
   }
+
   Future<void> _refresh() async {
     await Future.sync(() {
-        _getItems();
+      _getItems();
     });
   }
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _getSpotChild() {
-    if(_items == null) {
+    if (_items == null) {
       return Center(
         child: CircularProgressIndicator(),
       );
@@ -63,13 +68,16 @@ class _MyHomePageState extends State<MyHomePage> {
         itemCount: _items.length,
         itemBuilder: (context, int index) {
           return Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              _items[index]["name"],
-            ));
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                _items[index]["name"],
+              ));
         },
       );
     }
+  }
+  void _incrementCounter() {
+    Navigator.of(context).pushNamed("/register");
   }
 
   @override
@@ -80,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: _getSpotChild(),
       floatingActionButton: FloatingActionButton(
-        onPressed: _getItems,
+        onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
