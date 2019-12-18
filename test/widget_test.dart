@@ -11,20 +11,27 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kamera_yohou/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('API Getway test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Show mock API Gateway
+    expect(find.text('aaa'), findsOneWidget);
+    expect(find.text('bbb'), findsNWidgets(2));
+    expect(find.text('cafwea'), findsOneWidget);
+    expect(find.text('afefaewf'), findsOneWidget);
+    expect(find.text('afeawfe'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
+  testWidgets('Page Transition test', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(MyApp());
+
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
     // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect("Favarites List", findsOneWidget);
   });
+
 }
