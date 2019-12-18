@@ -12,7 +12,7 @@ jobs:
 
       - run:
           name: Export Environment-Variables
-          command: env
+          command: env > ~/.env
 
       - run:
           name: Run Flutter doctor
