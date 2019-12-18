@@ -16,7 +16,7 @@ jobs:
 
       - run:
           name: Export Environment-Variables
-          command: echo ${ENV} > ~/.env
+          command: env > ~/.env
 
       - run:
           name: Run the application tests
