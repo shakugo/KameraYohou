@@ -11,8 +11,8 @@ jobs:
       - checkout
 
       - run:
-        name: Export Environment-Variables
-        command: env > ~/.env
+          name: Export Environment-Variables
+          command: env
 
       - run:
         name: Run Flutter doctor
