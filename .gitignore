@@ -74,3 +74,6 @@
 
 #vscode
 .vscode/
+
+# Environment Config
+.env*

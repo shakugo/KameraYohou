@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kamera_yohou/register.dart';
 
 class SpotList extends StatelessWidget {
@@ -33,10 +34,10 @@ class _MyHomePageState extends State<MyHomePage> {
   var _items = [];
 
   void _getItems() {
-    var url =
-        "https://rabpde31gf.execute-api.ap-northeast-1.amazonaws.com/dev/mock";
+    var url = DotEnv().env['MOCK_URL'];
+    var apiKey = DotEnv().env['MOCK_API_KEY'];
     //APIをたたいて、スポットの情報を全取得したい
-    http.get(url).then((response) {
+    http.get(url, headers: {'x-api-key': apiKey}).then((response) {
       print("Fetch API");
       Map<String, dynamic> body = json.decode(response.body);
       print(body);
