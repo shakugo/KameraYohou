@@ -5,7 +5,7 @@ jobs:
       - image: cirrusci/flutter:v1.5.8
 
     branches:
-      only: master
+      only: /feature.+/
 
     steps:
       - checkout
