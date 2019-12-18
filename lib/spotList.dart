@@ -9,16 +9,17 @@ class SpotList extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _ListPageState createState() => _ListPageState();
 }
 
-class _MyHomePageState extends State<SpotList> {
+class _ListPageState extends State<SpotList> {
   var _items = [];
+
+  final String url = DotEnv().env['MOCK_URL'];
+  final String apiKey = DotEnv().env['MOCK_API_KEY'];
 
   //API Gateway経由でおすすめスポットの一覧を取得
   void _getItems() {
-    var url = DotEnv().env['MOCK_URL'];
-    var apiKey = DotEnv().env['MOCK_API_KEY'];
     //APIをたたいて、スポットの情報を全取得
     http.get(url, headers: {'x-api-key': apiKey}).then((response) {
       print("Fetch API");
