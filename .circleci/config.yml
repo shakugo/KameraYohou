@@ -15,6 +15,10 @@ jobs:
           command: flutter doctor
 
       - run:
+          name: Export Environment-Variables
+          command: echo ${ENV} > ~/.env
+
+      - run:
           name: Run the application tests
           command: flutter test
 
