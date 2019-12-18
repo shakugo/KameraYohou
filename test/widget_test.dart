@@ -16,22 +16,6 @@ void main() {
     await tester.pumpWidget(MyApp());
 
     // Show mock API Gateway
-    expect(find.text('aaa'), findsOneWidget);
-    expect(find.text('bbb'), findsNWidgets(2));
-    expect(find.text('cafwea'), findsOneWidget);
-    expect(find.text('afefaewf'), findsOneWidget);
-    expect(find.text('afeawfe'), findsOneWidget);
+    expect(find.text('Spot List'), findsOneWidget);
   });
-
-  testWidgets('Page Transition test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
-
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect("Favarites List", findsOneWidget);
-  });
-
 }
