@@ -2,13 +2,17 @@ version: 2
 jobs:
   build:
     docker:
-      - image: cirrusci/flutter:v1.5.8
+      - image: cirrusci/flutter
 
     branches:
-      only: master
+      only: /feature.+/
 
     steps:
       - checkout
+
+      - run:
+          name: Export Environment-Variables
+          command: env > .env
 
       - run:
           name: Run Flutter doctor
