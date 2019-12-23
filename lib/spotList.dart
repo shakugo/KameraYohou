@@ -24,7 +24,7 @@ class _ListPageState extends State<SpotList> {
 
   //API Gateway経由でおすすめスポットの一覧を取得
   void _getItems() {
-    var url = DotEnv().env['API_BASE_URL'] + "/spots";
+    var url = DotEnv().env['API_BASE_URL'].toString() + "/spots";
     var apiKey = DotEnv().env['API_KEY'];
     //APIをたたいて、スポットの情報を全取得したい
     http.get(url, headers: {'x-api-key': apiKey}).then((response) {
