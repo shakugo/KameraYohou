@@ -2,41 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:kamera_yohou/register.dart';
 
-class SpotList extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Spot List',
-      theme: ThemeData(
-        primarySwatch: Colors.red,
-      ),
-      home: MyHomePage(title: 'Spot List'),
-      routes: <String, WidgetBuilder>{
-        '/register': (_) => new Register(),
-      },
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class SpotList extends StatefulWidget {
+  SpotList({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _ListPageState createState() => _ListPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _ListPageState extends State<SpotList> {
   var _items = [];
 
+  final String url = DotEnv().env['MOCK_URL'];
+  final String apiKey = DotEnv().env['MOCK_API_KEY'];
+
+  //API Gateway経由でおすすめスポットの一覧を取得
   void _getItems() {
-    var url = DotEnv().env['MOCK_URL'];
-    var apiKey = DotEnv().env['MOCK_API_KEY'];
-    //APIをたたいて、スポットの情報を全取得したい
+    //APIをたたいて、スポットの情報を全取得
     http.get(url, headers: {'x-api-key': apiKey}).then((response) {
       print("Fetch API");
       Map<String, dynamic> body = json.decode(response.body);
@@ -62,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _getSpotChild() {
     if (_items == null) {
       return Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(), //取得中はグルグルを表示
       );
     } else {
       return ListView.builder(
@@ -77,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
   }
-  void _incrementCounter() {
+  void _linkToRegister() {
     Navigator.of(context).pushNamed("/register");
   }
 
@@ -89,10 +73,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: _getSpotChild(),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: _linkToRegister,
         tooltip: 'Increment',
         child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
