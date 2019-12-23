@@ -24,14 +24,17 @@ class _ListPageState extends State<SpotList> {
 
   //API Gateway経由でおすすめスポットの一覧を取得
   void _getItems() {
-    //APIをたたいて、スポットの情報を全取得
+    var url = DotEnv().env['API_BASE_URL'] + "/spots";
+    var apiKey = DotEnv().env['API_KEY'];
+    //APIをたたいて、スポットの情報を全取得したい
     http.get(url, headers: {'x-api-key': apiKey}).then((response) {
-      Map<String, dynamic> body = json.decode(response.body);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> body = json.decode(responseBody);
       logger.d(body);
 
-      if(body['data'] != null) {
+      if(body['Items'] != null) {
         setState(() {
-          _items = body['data'];
+          _items = body["Items"];
           _isError = false;
         });
       } else {
@@ -61,7 +64,7 @@ class _ListPageState extends State<SpotList> {
   }
 
   Widget _getSpotChild() {
-    if (_items.length == 0) {
+    if (_items == null) {
       return Center(
         child: CircularProgressIndicator(), //取得中はグルグルを表示
       );
@@ -72,7 +75,8 @@ class _ListPageState extends State<SpotList> {
           return Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
-              _items[index]["name"]
+              _items[index]["spot_name"],
+              style: TextStyle(fontSize: 20),
             )
           );
         },
