@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new SpotList(title: 'Sport List'),
+      home: new SpotList(title: 'Spot List'),
       routes: <String, WidgetBuilder>{
         '/register': (_) => new Register(),
       },
