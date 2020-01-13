@@ -19,9 +19,6 @@ class _ListPageState extends State<SpotList> {
   String _errMsg = "";
   final logger = Logger();
 
-  final String url = DotEnv().env['MOCK_URL'];
-  final String apiKey = DotEnv().env['MOCK_API_KEY'];
-
   //API Gateway経由でおすすめスポットの一覧を取得
   void _getItems() {
     var url = DotEnv().env['API_BASE_URL'].toString() + "/spots";
