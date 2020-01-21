@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:crypto/crypto.dart';
+import 'package:kamera_yohou/currentLocation.dart';
 
 class Register extends StatefulWidget {
   @override
@@ -24,8 +25,10 @@ class _RegisterState extends State<Register> {
   bool _isError;
   String _errMsg = "";
 
-  //API Gateway経由で登録済み被写体の一覧を取得
+  //API Gateway経由で登録済み被写体�?�一覧を取�?
   void _getSubjects() {
+    CurrentLocation currentLocation = new CurrentLocation();
+    currentLocation.getCurrentLocation;
     http.get(url, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
@@ -50,16 +53,20 @@ class _RegisterState extends State<Register> {
     });
   }
 
-  //API Gateway経由で被写体の新規登録
+  //API Gateway経由で被写体�?�新規登録
   void _registerSubjects() {
     String subjectName = inputTextController.text;
     List<int> bytes = utf8.encode(subjectName); // data being hashed
     var digest = sha1.convert(bytes);
-    Map<String, Object> reqBody = {"subject_id": digest.toString(), "subject_name": subjectName};
+    Map<String, Object> reqBody = {
+      "subject_id": digest.toString(),
+      "subject_name": subjectName
+    };
 
-    //リクエストの送信
-    http.post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
-    .then((response) {
+    //リクエスト�?�送信
+    http
+        .post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
+        .then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> resBody = json.decode(responseBody);
       _datas.add(reqBody);
@@ -90,32 +97,28 @@ class _RegisterState extends State<Register> {
     _refresh();
   }
 
-  //入力フォーム
+  //入力フォー�?
   Widget inputFormUI() {
     return Row(
       children: <Widget>[
         Expanded(
-          child: TextFormField(
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: 'Enter a new Subject'
-            ),
-            controller: inputTextController,
-            autofocus: true,
-            validator: (value) {
-              if (value.isEmpty){
-                return "Please input text!";
-              }
-              return null;
-            },
-          )
-        ),
+            child: TextFormField(
+          decoration: InputDecoration(
+              border: InputBorder.none, hintText: 'Enter a new Subject'),
+          controller: inputTextController,
+          autofocus: true,
+          validator: (value) {
+            if (value.isEmpty) {
+              return "Please input text!";
+            }
+            return null;
+          },
+        )),
         RaisedButton(
-          child: Text("Add"),
-          color: Colors.red,
-          shape: StadiumBorder(),
-          onPressed: _validateInputs
-        ),
+            child: Text("Add"),
+            color: Colors.red,
+            shape: StadiumBorder(),
+            onPressed: _validateInputs),
       ],
     );
   }
@@ -148,37 +151,32 @@ class _RegisterState extends State<Register> {
         itemCount: _datas.length,
         itemBuilder: (context, int index) {
           return Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              _datas[index]["subject_name"],
-              style: TextStyle(fontSize: 20),
-            )
-          );
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                _datas[index]["subject_name"],
+                style: TextStyle(fontSize: 20),
+              ));
         },
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Increment',
         child: Icon(Icons.add),
         onPressed: () {
-          //最下部から出現する入力フォーム
+          //最下部から出現する入力フォー�?
           showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10.0),
-                topRight: Radius.circular(10.0)
+              context: context,
+              isScrollControlled: true,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10.0),
+                    topRight: Radius.circular(10.0)),
               ),
-            ),
-            builder: (context) => Padding(
-              padding: MediaQuery.of(context).viewInsets,
-              child: Form(
-                key: _formKey,
-                autovalidate: _autoValidate,
-                child: inputFormUI()
-              )
-            )
-          );
+              builder: (context) => Padding(
+                  padding: MediaQuery.of(context).viewInsets,
+                  child: Form(
+                      key: _formKey,
+                      autovalidate: _autoValidate,
+                      child: inputFormUI())));
         },
       ),
     );
