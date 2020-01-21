@@ -29,7 +29,6 @@ class _SubjectState extends State<Subject> {
     http.get(url, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
-      logger.d(body);
 
       if (body['Items'] != null) {
         setState(() {
@@ -51,15 +50,14 @@ class _SubjectState extends State<Subject> {
   }
 
   //API Gateway経由で被写体の新規登録
-  void _SubjectSubjects() {
+  void _registerSubjects() {
     String subjectName = inputTextController.text;
     List<int> bytes = utf8.encode(subjectName); // data being hashed
     var digest = sha1.convert(bytes);
     Map<String, Object> reqBody = {"subject_id": digest.toString(), "subject_name": subjectName};
 
     //リクエストの送信
-    http.post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
-    .then((response) {
+    http.post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody)).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> resBody = json.decode(responseBody);
       _datas.add(reqBody);
@@ -124,7 +122,7 @@ class _SubjectState extends State<Subject> {
     if (_formKey.currentState.validate()) {
       // If all data are correct then save data to out variables
       _formKey.currentState.save();
-      _SubjectSubjects();
+      _registerSubjects();
     } else {
       // If all data are not valid then start auto validation.
       setState(() {
@@ -133,25 +131,23 @@ class _SubjectState extends State<Subject> {
     }
   }
 
+  //論理削除リクエストの送信
   void _deleteSubject(String subjectId) {
-    url = url + "/" + subjectId;
-    //リクエストの送信
-    http.delete(url, headers: {'x-api-key': apiKey}).then((response) {
+    http.delete(url + "/" + subjectId, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
-      logger.d(body);
 
-      // if (body['Items'] != null) {
-      //   setState(() {
-      //     _datas = body["Items"];
-      //     _isError = false;
-      //   });
-      // } else {
-      //   setState(() {
-      //     _isError = true;
-      //     _errMsg = body["message"];
-      //   });
-      // }
+      if (response.statusCode == 200) {
+        setState(() {
+          _datas = _datas.where((item) => (item["subject_id"] != subjectId)).toList();
+          _isError = false;
+        });
+      } else {
+        setState(() {
+          _isError = true;
+          _errMsg = body["message"];
+        });
+      }
     }).catchError((err) {
       setState(() {
         _isError = true;
