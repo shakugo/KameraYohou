@@ -7,9 +7,8 @@ jobs:
   flutter_analyze_and_test:
     docker:
       - image: cirrusci/flutter
-    # branches:
-    #   only: /feature.+/
-    steps:
+
+      steps:
       - checkout
 
       - run:
@@ -33,3 +32,9 @@ jobs:
 
       - store_artifacts:
           path: build/app/outputs/apk/release/app-release.apk
+
+workflows:
+  version: 2
+  pull-request:
+    jobs:
+      - flutter_analyze_and_test
