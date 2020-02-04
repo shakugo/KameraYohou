@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       ),
       home: new SpotList(title: 'Spot List'),
       routes: <String, WidgetBuilder>{
-        '/register': (_) => new Subject(),
+        '/register': (_) => new Subject(title: 'Favarites List'),
       },
     );
   }
