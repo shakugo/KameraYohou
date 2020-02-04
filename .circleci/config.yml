@@ -1,4 +1,8 @@
-version: 2
+version: 2.1
+
+orbs:
+  codecov: codecov/codecov@1.0.5 # See: https://circleci.com/orbs/registry/orb/codecov/codecov
+
 jobs:
   build:
     docker:
@@ -20,7 +24,7 @@ jobs:
 
       - run:
           name: Run the application tests
-          command: flutter test
+          command: flutter test --coverage
 
       - run:
           name: Build the Android version
@@ -28,3 +32,6 @@ jobs:
 
       - store_artifacts:
           path: build/app/outputs/apk/release/app-release.apk
+
+      - codecov/upload:
+          file: ~/coverage/lcov.info
