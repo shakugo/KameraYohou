@@ -25,11 +25,8 @@ class _RegisterState extends State<Register> {
   bool _isError;
   String _errMsg = "";
 
-  //API Gateway経由で登録済み被写体�?�一覧を取�?
+  //API Gateway経由で登録済み被写体一覧を取得
   void _getSubjects() {
-    print("neko: getsubject");
-    CurrentLocation currentLocation = new CurrentLocation();
-    currentLocation.getCurrentLocation();
     http.get(url, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
