@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kamera_yohou/spotList.dart';
-import 'package:kamera_yohou/register.dart';
 import 'package:kamera_yohou/currentLocation.dart';
+import 'package:kamera_yohou/subjectList.dart';
 
 void main() async {
   await DotEnv().load('.env');
   runApp(MyApp());
-  print("hooooom");
+  //TODO current locationの例
   CurrentLocation currentLocation = new CurrentLocation();
   currentLocation.getCurrentLocation();
 }
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       ),
       home: new SpotList(title: 'Spot List'),
       routes: <String, WidgetBuilder>{
-        '/register': (_) => new Register(),
+        '/register': (_) => new Subject(),
       },
     );
   }
