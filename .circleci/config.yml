@@ -24,7 +24,7 @@ jobs:
           command: flutter test --coverage
 
       - codecov/upload:
-          file: ~/coverage/lcov.info
+          file: ./coverage/lcov.info
 
       - run:
           name: Build the Android version
