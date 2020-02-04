@@ -7,8 +7,8 @@ jobs:
   flutter_analyze_and_test:
     docker:
       - image: cirrusci/flutter
-    branches:
-      only: /feature.+/
+    # branches:
+    #   only: /feature.+/
     steps:
       - checkout
 
