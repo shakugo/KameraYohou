@@ -54,7 +54,7 @@ class _RegisterState extends State<Register> {
     });
   }
 
-  //API Gateway経由で被写体�?�新規登録
+  //API Gateway経由で被写体新規登録
   void _registerSubjects() {
     String subjectName = inputTextController.text;
     List<int> bytes = utf8.encode(subjectName); // data being hashed
@@ -64,7 +64,7 @@ class _RegisterState extends State<Register> {
       "subject_name": subjectName
     };
 
-    //リクエスト�?�送信
+    //リクエスト送信
     http
         .post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
         .then((response) {
@@ -98,7 +98,7 @@ class _RegisterState extends State<Register> {
     _refresh();
   }
 
-  //入力フォー�?
+  //入力フォーム
   Widget inputFormUI() {
     return Row(
       children: <Widget>[
@@ -163,7 +163,7 @@ class _RegisterState extends State<Register> {
         tooltip: 'Increment',
         child: Icon(Icons.add),
         onPressed: () {
-          //最下部から出現する入力フォー�?
+          //最下部から出現する入力フォーム
           showModalBottomSheet(
               context: context,
               isScrollControlled: true,
