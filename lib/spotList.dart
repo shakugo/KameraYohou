@@ -3,6 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kamera_yohou/header.dart';
+import 'package:kamera_yohou/footer.dart';
+import 'package:kamera_yohou/menu.dart';
 
 class SpotList extends StatefulWidget {
   SpotList({Key key, this.title}) : super(key: key);
@@ -27,9 +30,8 @@ class _ListPageState extends State<SpotList> {
     http.get(url, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
-      logger.d(body);
 
-      if(body['Items'] != null) {
+      if (response.statusCode == 200) {
         setState(() {
           _items = body["Items"];
           _isError = false;
@@ -60,13 +62,23 @@ class _ListPageState extends State<SpotList> {
     _refresh();
   }
 
-  Widget _getSpotChild() {
-    if (_items == null) {
-      return Center(
-        child: CircularProgressIndicator(), //取得中はグルグルを表示
+  Widget spotChild() {
+    var scrollableView;
+    if (_items.length == 0) {
+      scrollableView = ListView(
+        children: <Widget>[
+          Image.asset('images/rain_animated.gif'),
+          Center(
+            child: Text(
+              "No Recommended Spots...",
+              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0x55555555)),
+              textScaleFactor: 1.5
+            )
+          )
+        ]
       );
     } else {
-      return ListView.builder(
+      scrollableView = ListView.builder(
         itemCount: _items.length,
         itemBuilder: (context, int index) {
           return Padding(
@@ -74,28 +86,24 @@ class _ListPageState extends State<SpotList> {
             child: Text(
               _items[index]["spot_name"],
               style: TextStyle(fontSize: 20),
-            )
-          );
-        },
+            ));
+          },
       );
     }
-  }
-  void _linkToRegister() {
-    Navigator.of(context).pushNamed("/register");
+
+    return new RefreshIndicator(
+      onRefresh: _refresh,
+      child: scrollableView
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: _getSpotChild(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _linkToRegister,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+      appBar: Header(title: widget.title),
+      drawer: Menu(),
+      body: spotChild(),
+      bottomNavigationBar: Footer(),
     );
   }
 }
