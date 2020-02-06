@@ -5,8 +5,13 @@ import 'package:logger/logger.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:crypto/crypto.dart';
+import 'package:kamera_yohou/header.dart';
 
 class Subject extends StatefulWidget {
+  Subject({Key key, this.title}) : super(key: key);
+
+  final String title;
+
   @override
   _SubjectState createState() => _SubjectState();
 }
@@ -88,36 +93,7 @@ class _SubjectState extends State<Subject> {
     _refresh();
   }
 
-  //入力フォーム
-  Widget inputFormUI() {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: TextFormField(
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: 'Enter a new Subject'
-            ),
-            controller: inputTextController,
-            autofocus: true,
-            validator: (value) {
-              if (value.isEmpty){
-                return "Please input text!";
-              }
-              return null;
-            },
-          )
-        ),
-        RaisedButton(
-          child: Text("Add"),
-          color: Colors.red,
-          shape: StadiumBorder(),
-          onPressed: _validateInputs
-        ),
-      ],
-    );
-  }
-
+  //Validater
   void _validateInputs() {
     if (_formKey.currentState.validate()) {
       // If all data are correct then save data to out variables
@@ -161,6 +137,7 @@ class _SubjectState extends State<Subject> {
     super.dispose();
   }
 
+  //Item
   Widget subjectItem(item) {
     return Row(
       children: <Widget>[
@@ -184,20 +161,53 @@ class _SubjectState extends State<Subject> {
     );
   }
 
+  //入力フォーム
+  Widget inputFormUI() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: TextFormField(
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Enter a new Subject',
+              contentPadding: const EdgeInsets.all(20.0)
+            ),
+            controller: inputTextController,
+            scrollPadding: const EdgeInsets.all(20.0),
+            autofocus: true,
+            validator: (value) {
+              if (value.isEmpty){
+                return "Please input text!";
+              }
+              return null;
+            },
+          )
+        ),
+        RaisedButton(
+          child: Text("Add"),
+          color: Colors.orange,
+          shape: StadiumBorder(),
+          onPressed: _validateInputs
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Favarites List"),
-      ),
-      body: ListView.builder(
-        itemCount: _datas.length,
-        itemBuilder: (context, int index) {
-          return Padding(
-            padding: EdgeInsets.all(8.0),
-            child: subjectItem(_datas[index])
-          );
-        },
+      appBar: Header(title: widget.title),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView.builder(
+          itemCount: _datas.length,
+          itemBuilder: (context, int index) {
+            return Padding(
+              padding: EdgeInsets.all(8.0),
+              child: subjectItem(_datas[index])
+            );
+          },
+        )
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Increment',
