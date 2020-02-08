@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kamera_yohou/spotList.dart';
 
 class MockClient extends Mock implements http.Client {}
-
-class MockEnv extends Mock implements DotEnv {}
 
 void main() async {
   String widgetTitle = 'Spot List';
@@ -16,6 +13,21 @@ void main() async {
       await tester.pumpWidget(MaterialApp(home: new SpotList(title: widgetTitle)));
       // Title shoud be Spot List
       expect(find.text(widgetTitle), findsOneWidget);
+    });
+    testWidgets('Open drawer menu', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(home: new SpotList(title: widgetTitle)));
+      //Menu should be CLOSED when starting app
+      expect(find.byType(Drawer), findsNothing);
+
+      //Menu should be OPEND when tapping menu button
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
+      expect(find.byType(Drawer), findsOneWidget);
+
+      //Menu should be CLOSED when tapping Settings (?)
+      await tester.tap(find.text('Settings'));
+      await tester.pumpAndSettle();
+      expect(find.byType(Drawer), findsNothing);
     });
   });
 
@@ -29,12 +41,12 @@ void main() async {
 
       spotList.httpClient = mockClient;
       await tester.pumpWidget(MaterialApp(home: spotList));
-      await tester.pump();
+      await tester.pumpAndSettle();
       //verify 'a called count is 1'
       verify(mockClient.get(any, headers: anyNamed('headers'))).called(1);
     });
 
-    testWidgets('Get and Outout data ', (WidgetTester tester) async {
+    testWidgets('Get and output data ', (WidgetTester tester) async {
       final spotList = SpotList(title: widgetTitle);
       final mockClient = MockClient();
       when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(
@@ -44,7 +56,7 @@ void main() async {
 
       spotList.httpClient = mockClient;
       await tester.pumpWidget(MaterialApp(home: spotList));
-      await tester.pump();
+      await tester.pumpAndSettle();
       //verify 'a called count is 1'
       expect(find.text('ABCDEFG'), findsOneWidget);
     });
@@ -58,7 +70,7 @@ void main() async {
 
       spotList.httpClient = mockClient;
       await tester.pumpWidget(MaterialApp(home: spotList));
-      await tester.pump();
+      await tester.pumpAndSettle();
       // Home is Spot List Widget
       expect(find.text('No Recommended Spots...'), findsOneWidget);
     });

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 import 'dart:convert';
@@ -26,8 +25,8 @@ class _ListPageState extends State<SpotList> {
 
   //API Gateway経由でおすすめスポットの一覧を取得
   void _getItems() async {
-    var url = DotEnv().env['API_BASE_URL'].toString() + "/spots";
-    var apiKey = DotEnv().env['API_KEY'];
+    String url = DotEnv().env['API_BASE_URL'].toString() + "/spots";
+    String apiKey = DotEnv().env['API_KEY'];
 
     //APIをたたいて、スポットの情報を全取得したい
     widget.httpClient.get(url, headers: {'x-api-key': apiKey}).then((response) {
