@@ -35,7 +35,6 @@ class _SubjectState extends State<SubjectList> {
     widget.httpClient.get(url, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
-      logger.d(response.body);
       if (body['Items'] != null) {
         setState(() {
           _datas = body["Items"];
@@ -70,7 +69,6 @@ class _SubjectState extends State<SubjectList> {
       setState(() {
         _datas = _datas;
       });
-      logger.d(resBody);
     }).catchError((err) {
       setState(() {
         _isError = true;
@@ -135,6 +133,7 @@ class _SubjectState extends State<SubjectList> {
 
   //最下部から出現する入力フォーム
   void _showBottomForm(BuildContext context) {
+    inputTextController.clear();
     showModalBottomSheet(
       context: context,
       // isScrollControlled: true,
@@ -149,7 +148,7 @@ class _SubjectState extends State<SubjectList> {
         child: Form(
           key: _formKey,
           autovalidate: _autoValidate,
-          child: inputFormUI()
+          child: inputFormUI(),
         )
       )
     );
@@ -198,6 +197,11 @@ class _SubjectState extends State<SubjectList> {
             controller: inputTextController,
             scrollPadding: const EdgeInsets.all(20.0),
             autofocus: true,
+            onTap: () => print("onTap"),
+            onChanged: (str) => print("onChanged:"+str),
+            onSaved: (str) => print("onSaved:"+str),
+            onEditingComplete: () => print("onEditingComp"),
+            onFieldSubmitted: (str) => print("onFS:"+str),
             validator: (value) {
               if (value.isEmpty){
                 return "Please input text!";
