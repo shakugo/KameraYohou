@@ -131,7 +131,7 @@ class _SubjectState extends State<SubjectList> {
     });
   }
 
-  //最下部から出現する入力フォーム
+  //最下部から出現するアレ
   void _showBottomForm(BuildContext context) {
     inputTextController.clear();
     showModalBottomSheet(
