@@ -16,20 +16,19 @@ void main() {
       expect(find.text(widgetTitle), findsOneWidget);
     });
 
-    // testWidgets('push PLUS button', (WidgetTester tester) async {
+    testWidgets('Push the PLUS button', (WidgetTester tester) async {
     //   await tester.pumpWidget(MaterialApp(home: new SubjectList(title: widgetTitle)));
     //   expect(find.text('Add'), findsNothing);
     //   await tester.tap(find.byType(FloatingActionButton));
     //   await tester.pumpAndSettle();
-    //   // title is 'Favarite List'
+    // //   // title is 'Favarite List'
     //   expect(find.text('Add'), findsOneWidget);
 
-    //   //Quiet animation controller for test exit
-    //   // await tester.pageBack();
-    //   await tester.tap(find.byIcon(Icons.arrow_back));
+    // //   //Quiet animation controller for test exit
+    //   await tester.pageBack();
     //   await tester.pumpAndSettle();
-    //   // expect(find.text('Add'), findsNothing);
-    // });
+    //   expect(find.text('Add'), findsNothing);
+    });
   });
   group('API calling', () {
     group('GET', (){
@@ -42,7 +41,7 @@ void main() {
 
         subjectList.httpClient = mockClient;
         await tester.pumpWidget(MaterialApp(home: subjectList));
-        await tester.pumpAndSettle();
+        await tester.pump();
         //verify 'a called count is 1'
         verify(mockClient.get(any, headers: anyNamed('headers'))).called(1);
       });
@@ -77,7 +76,7 @@ void main() {
 
         subjectList.httpClient = mockClient;
         await tester.pumpWidget(MaterialApp(home: subjectList));
-        await tester.pumpAndSettle();
+        await tester.pump();
         verify(mockClient.get(any, headers: anyNamed('headers'))).called(1);
         expect(find.text('ABCDEFG'), findsNothing);
 
@@ -86,7 +85,7 @@ void main() {
 
         //Enter text
         await tester.enterText(find.byType(TextFormField), 'ABCDEFG');
-        await tester.pumpAndSettle();
+        await tester.pump();
 
         //tap add button
         await tester.tap(find.byIcon(Icons.add));
@@ -111,13 +110,13 @@ void main() {
 
         subjectList.httpClient = mockClient;
         await tester.pumpWidget(MaterialApp(home: subjectList));
-        await tester.pumpAndSettle();
+        await tester.pump();
         verify(mockClient.get(any, headers: anyNamed('headers'))).called(1);
         expect(find.text('ABCDEFG'), findsOneWidget);
 
         //tap delete button
         await tester.tap(find.byIcon(Icons.delete));
-        await tester.pumpAndSettle();
+        await tester.pump();
 
         //verfy delete item
         verify(mockClient.delete(any, headers: anyNamed('headers'))).called(1);
