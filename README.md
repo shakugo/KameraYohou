@@ -1,16 +1,13 @@
-# kamera_yohou
+# カメラ予報アプリ（仮）
+[![GitHub issues](https://img.shields.io/github/issues/shakugo/KameraYohou)](https://github.com/shakugo/KameraYohou/issues)
+[![codecov](https://codecov.io/gh/shakugo/KameraYohou/branch/develop/graph/badge.svg)](https://codecov.io/gh/shakugo/KameraYohou)
+[![CircleCI](https://circleci.com/gh/shakugo/KameraYohou.svg?style=svg)](https://circleci.com/gh/shakugo/KameraYohou)
 
-A new Flutter application.
+* その人の写真の好みに適したおすすめスポットを予報してくれるアプリ
+![kamerayohou](https://user-images.githubusercontent.com/34294333/74433771-6687cb80-4ea4-11ea-9b5a-d8d3c05219d4.jpg)
 
-## Getting Started
+## 概要
 
-This project is a starting point for a Flutter application.
+## 機能
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 仕組み
