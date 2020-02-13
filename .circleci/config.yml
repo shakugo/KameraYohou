@@ -1,11 +1,12 @@
-version: 2
+version: 2.1
+
+orbs:
+  codecov: codecov/codecov@1.0.5
+
 jobs:
-  build:
+  flutter_analyze_and_test:
     docker:
       - image: cirrusci/flutter
-
-    branches:
-      only: /feature.+/
 
     steps:
       - checkout
@@ -20,7 +21,10 @@ jobs:
 
       - run:
           name: Run the application tests
-          command: flutter test
+          command: flutter test --coverage
+
+      - codecov/upload:
+          file: ./coverage/lcov.info
 
       - run:
           name: Build the Android version
@@ -28,3 +32,9 @@ jobs:
 
       - store_artifacts:
           path: build/app/outputs/apk/release/app-release.apk
+
+workflows:
+  version: 2
+  pull-request:
+    jobs:
+      - flutter_analyze_and_test

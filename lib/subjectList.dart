@@ -1,22 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:crypto/crypto.dart';
 import 'package:kamera_yohou/header.dart';
 
-class Subject extends StatefulWidget {
-  Subject({Key key, this.title}) : super(key: key);
+class SubjectList extends StatefulWidget {
+  SubjectList({Key key, this.title}) : super(key: key);
 
   final String title;
+  Client httpClient = Client();
 
   @override
   _SubjectState createState() => _SubjectState();
 }
 
-class _SubjectState extends State<Subject> {
+class _SubjectState extends State<SubjectList> {
   String url = DotEnv().env['API_BASE_URL'].toString() + "/subjects";
   String apiKey = DotEnv().env['API_KEY'];
   final logger = Logger();
@@ -31,10 +32,9 @@ class _SubjectState extends State<Subject> {
 
   //API Gateway経由で登録済み被写体の一覧を取得
   void _getSubjects() {
-    http.get(url, headers: {'x-api-key': apiKey}).then((response) {
+    widget.httpClient.get(url, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
-
       if (body['Items'] != null) {
         setState(() {
           _datas = body["Items"];
@@ -62,14 +62,13 @@ class _SubjectState extends State<Subject> {
     Map<String, Object> reqBody = {"subject_id": digest.toString(), "subject_name": subjectName};
 
     //リクエストの送信
-    http.post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody)).then((response) {
+    widget.httpClient.post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody)).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> resBody = json.decode(responseBody);
       _datas.add(reqBody);
       setState(() {
         _datas = _datas;
       });
-      logger.d(resBody);
     }).catchError((err) {
       setState(() {
         _isError = true;
@@ -109,7 +108,7 @@ class _SubjectState extends State<Subject> {
 
   //論理削除リクエストの送信
   void _deleteSubject(String subjectId) {
-    http.delete(url + "/" + subjectId, headers: {'x-api-key': apiKey}).then((response) {
+    widget.httpClient.delete(url + "/" + subjectId, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
 
@@ -130,6 +129,29 @@ class _SubjectState extends State<Subject> {
         _errMsg = err.toString();
       });
     });
+  }
+
+  //最下部から出現するアレ
+  void _showBottomForm(BuildContext context) {
+    inputTextController.clear();
+    showModalBottomSheet(
+      context: context,
+      // isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.0),
+          topRight: Radius.circular(10.0)
+        ),
+      ),
+      builder: (context) => Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: Form(
+          key: _formKey,
+          autovalidate: _autoValidate,
+          child: inputFormUI(),
+        )
+      )
+    );
   }
 
   void dispose() {
@@ -175,6 +197,11 @@ class _SubjectState extends State<Subject> {
             controller: inputTextController,
             scrollPadding: const EdgeInsets.all(20.0),
             autofocus: true,
+            onTap: () => print("onTap"),
+            onChanged: (str) => print("onChanged:"+str),
+            onSaved: (str) => print("onSaved:"+str),
+            onEditingComplete: () => print("onEditingComp"),
+            onFieldSubmitted: (str) => print("onFS:"+str),
             validator: (value) {
               if (value.isEmpty){
                 return "Please input text!";
@@ -210,29 +237,8 @@ class _SubjectState extends State<Subject> {
         )
       ),
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Increment',
         child: Icon(Icons.add),
-        onPressed: () {
-          //最下部から出現する入力フォーム
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10.0),
-                topRight: Radius.circular(10.0)
-              ),
-            ),
-            builder: (context) => Padding(
-              padding: MediaQuery.of(context).viewInsets,
-              child: Form(
-                key: _formKey,
-                autovalidate: _autoValidate,
-                child: inputFormUI()
-              )
-            )
-          );
-        },
+        onPressed: ()=> _showBottomForm(context),
       ),
     );
   }
