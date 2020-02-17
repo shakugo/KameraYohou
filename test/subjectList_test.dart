@@ -9,29 +9,30 @@ class MockClient extends Mock implements http.Client {}
 void main() {
   String widgetTitle = 'Favarite List';
 
-  group('UI', (){
+  group('UI', () {
     testWidgets('SubjectList title', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: new SubjectList(title: widgetTitle)));
+      await tester
+          .pumpWidget(MaterialApp(home: new SubjectList(title: widgetTitle)));
       // title is 'Favarite List'
       expect(find.text(widgetTitle), findsOneWidget);
     });
 
     testWidgets('Push the PLUS button', (WidgetTester tester) async {
-    //   await tester.pumpWidget(MaterialApp(home: new SubjectList(title: widgetTitle)));
-    //   expect(find.text('Add'), findsNothing);
-    //   await tester.tap(find.byType(FloatingActionButton));
-    //   await tester.pumpAndSettle();
-    // //   // title is 'Favarite List'
-    //   expect(find.text('Add'), findsOneWidget);
+      //   await tester.pumpWidget(MaterialApp(home: new SubjectList(title: widgetTitle)));
+      //   expect(find.text('Add'), findsNothing);
+      //   await tester.tap(find.byType(FloatingActionButton));
+      //   await tester.pumpAndSettle();
+      // //   // title is 'Favarite List'
+      //   expect(find.text('Add'), findsOneWidget);
 
-    // //   //Quiet animation controller for test exit
-    //   await tester.pageBack();
-    //   await tester.pumpAndSettle();
-    //   expect(find.text('Add'), findsNothing);
+      // //   //Quiet animation controller for test exit
+      //   await tester.pageBack();
+      //   await tester.pumpAndSettle();
+      //   expect(find.text('Add'), findsNothing);
     });
   });
   group('API calling', () {
-    group('GET', (){
+    group('GET', () {
       testWidgets('Get data by one time', (WidgetTester tester) async {
         final mockClient = MockClient();
         final subjectList = SubjectList(title: widgetTitle);
@@ -51,7 +52,7 @@ void main() {
         final mockClient = MockClient();
         when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(
             (_) async => http.Response(
-                '{"Items":[{"subject_id":"abcdefg","subject_name":"ABCDEFG","available_flag":true}],"Count":1,"ScannedCount":4}',
+                '{"Item": {"subjects": ["ABCDEFG"]},"Count":1,"ScannedCount":4}',
                 200));
 
         subjectList.httpClient = mockClient;
@@ -62,16 +63,17 @@ void main() {
       });
     });
 
-    group('POST', (){
-      testWidgets('Push add button and request POST', (WidgetTester tester) async {
+    group('POST', () {
+      testWidgets('Push add button and request POST',
+          (WidgetTester tester) async {
         final mockClient = MockClient();
         final subjectList = SubjectList(title: widgetTitle);
         when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(
-            (_) async => http.Response(
-                '{"Items":[],"Count":0,"ScannedCount":0}',
-                200));
-        when(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body'))).thenAnswer(
             (_) async =>
+                http.Response('{"Items":[],"Count":0,"ScannedCount":0}', 200));
+        when(mockClient.post(any,
+                headers: anyNamed('headers'), body: anyNamed('body')))
+            .thenAnswer((_) async =>
                 http.Response('{"Items":[],"Count":0,"ScannedCount":0}', 200));
 
         subjectList.httpClient = mockClient;
@@ -92,20 +94,24 @@ void main() {
         await tester.pumpAndSettle();
 
         //verfy delete item
-        verify(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body'))).called(1);
+        verify(mockClient.post(any,
+                headers: anyNamed('headers'), body: anyNamed('body')))
+            .called(1);
         expect(find.text('ABCDEFG'), findsOneWidget);
       });
     });
-    group('DELETE', (){
-      testWidgets('Push delete button and request DELETE', (WidgetTester tester) async {
+    group('DELETE', () {
+      testWidgets('Push delete button and request DELETE',
+          (WidgetTester tester) async {
         final mockClient = MockClient();
         final subjectList = SubjectList(title: widgetTitle);
         when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(
             (_) async => http.Response(
-                '{"Items":[{"subject_id":"abcdefg","subject_name":"ABCDEFG","available_flag":true}],"Count":1,"ScannedCount":4}',
+                '{"Item":{"subjects": ["ABCDEFG"]},"Count":1,"ScannedCount":4}',
                 200));
-        when(mockClient.delete(any, headers: anyNamed('headers'))).thenAnswer(
-            (_) async =>
+        when(mockClient.put(any,
+                headers: anyNamed('headers'), body: anyNamed('body')))
+            .thenAnswer((_) async =>
                 http.Response('{"Items":[],"Count":0,"ScannedCount":0}', 200));
 
         subjectList.httpClient = mockClient;
@@ -119,7 +125,9 @@ void main() {
         await tester.pump();
 
         //verfy delete item
-        verify(mockClient.delete(any, headers: anyNamed('headers'))).called(1);
+        verify(mockClient.put(any,
+                headers: anyNamed('headers'), body: anyNamed('body')))
+            .called(1);
         expect(find.text('ABCDEFG'), findsNothing);
       });
     });
