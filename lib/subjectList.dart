@@ -106,17 +106,17 @@ class _SubjectState extends State<SubjectList> {
   }
 
   //論理削除リクエストの送信
-  void _deleteSubject(String subjectId) {
-    widget.httpClient.delete(url + "/" + subjectId,
-        headers: {'x-api-key': apiKey}).then((response) {
+  void _deleteSubject(String subjectName) {
+    Map<String, Object> reqBody = {"subject_name": subjectName};
+    widget.httpClient
+        .put(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
+        .then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
 
       if (response.statusCode == 200) {
         setState(() {
-          _datas = _datas
-              .where((item) => (item["subject_id"] != subjectId))
-              .toList();
+          _datas = _datas.where((item) => (item != subjectName)).toList();
           _isError = false;
         });
       } else {
@@ -174,7 +174,7 @@ class _SubjectState extends State<SubjectList> {
             width: 1.0,
             style: BorderStyle.none,
           )),
-          onPressed: () => _deleteSubject(item["subject_id"])),
+          onPressed: () => _deleteSubject(item)),
     ]);
   }
 
