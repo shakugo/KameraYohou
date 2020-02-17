@@ -64,8 +64,7 @@ class _SubjectState extends State<SubjectList> {
         .then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> resBody = json.decode(responseBody);
-      logger.d(response.statusCode);
-      _datas.add(reqBody);
+      _datas.add(subjectName);
       setState(() {
         _datas = _datas;
       });
