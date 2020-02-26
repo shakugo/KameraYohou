@@ -4,7 +4,6 @@ import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:crypto/crypto.dart';
 import 'package:kamera_yohou/header.dart';
 
 class SubjectList extends StatefulWidget {
@@ -18,7 +17,7 @@ class SubjectList extends StatefulWidget {
 }
 
 class _SubjectState extends State<SubjectList> {
-  String url = DotEnv().env['API_BASE_URL'].toString() + "/subjects";
+  String url = DotEnv().env['API_BASE_URL'].toString() + "/user/1/subjects";
   String apiKey = DotEnv().env['API_KEY'];
   final logger = Logger();
   final inputTextController = TextEditingController();
@@ -35,9 +34,9 @@ class _SubjectState extends State<SubjectList> {
     widget.httpClient.get(url, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
-      if (body['Items'] != null) {
+      if (body['Item'] != null) {
         setState(() {
-          _datas = body["Items"];
+          _datas = body["Item"]["subjects"];
           _isError = false;
         });
       } else {
@@ -57,15 +56,15 @@ class _SubjectState extends State<SubjectList> {
   //API Gateway経由で被写体の新規登録
   void _registerSubjects() {
     String subjectName = inputTextController.text;
-    List<int> bytes = utf8.encode(subjectName); // data being hashed
-    var digest = sha1.convert(bytes);
-    Map<String, Object> reqBody = {"subject_id": digest.toString(), "subject_name": subjectName};
+    Map<String, Object> reqBody = {"subject_name": subjectName};
 
     //リクエストの送信
-    widget.httpClient.post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody)).then((response) {
+    widget.httpClient
+        .post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
+        .then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> resBody = json.decode(responseBody);
-      _datas.add(reqBody);
+      _datas.add(subjectName);
       setState(() {
         _datas = _datas;
       });
@@ -107,14 +106,17 @@ class _SubjectState extends State<SubjectList> {
   }
 
   //論理削除リクエストの送信
-  void _deleteSubject(String subjectId) {
-    widget.httpClient.delete(url + "/" + subjectId, headers: {'x-api-key': apiKey}).then((response) {
+  void _deleteSubject(String subjectName) {
+    Map<String, Object> reqBody = {"subject_name": subjectName};
+    widget.httpClient
+        .put(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
+        .then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
 
       if (response.statusCode == 200) {
         setState(() {
-          _datas = _datas.where((item) => (item["subject_id"] != subjectId)).toList();
+          _datas = _datas.where((item) => (item != subjectName)).toList();
           _isError = false;
         });
       } else {
@@ -135,23 +137,19 @@ class _SubjectState extends State<SubjectList> {
   void _showBottomForm(BuildContext context) {
     inputTextController.clear();
     showModalBottomSheet(
-      context: context,
-      // isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(10.0),
-          topRight: Radius.circular(10.0)
+        context: context,
+        // isScrollControlled: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
         ),
-      ),
-      builder: (context) => Padding(
-        padding: MediaQuery.of(context).viewInsets,
-        child: Form(
-          key: _formKey,
-          autovalidate: _autoValidate,
-          child: inputFormUI(),
-        )
-      )
-    );
+        builder: (context) => Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: Form(
+              key: _formKey,
+              autovalidate: _autoValidate,
+              child: inputFormUI(),
+            )));
   }
 
   void dispose() {
@@ -161,26 +159,23 @@ class _SubjectState extends State<SubjectList> {
 
   //Item
   Widget subjectItem(item) {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: Text(
-            item["subject_name"],
-            style: TextStyle(fontSize: 20),
-          ),
+    return Row(children: <Widget>[
+      Expanded(
+        child: Text(
+          item,
+          style: TextStyle(fontSize: 20),
         ),
-        RaisedButton(
+      ),
+      RaisedButton(
           child: Icon(Icons.delete, color: Colors.red),
           shape: CircleBorder(
-          side: BorderSide(
+              side: BorderSide(
             color: Colors.black,
             width: 1.0,
             style: BorderStyle.none,
           )),
-          onPressed: () => _deleteSubject(item["subject_id"])
-        ),
-      ]
-    );
+          onPressed: () => _deleteSubject(item)),
+    ]);
   }
 
   //入力フォーム
@@ -188,34 +183,26 @@ class _SubjectState extends State<SubjectList> {
     return Row(
       children: <Widget>[
         Expanded(
-          child: TextFormField(
-            decoration: InputDecoration(
+            child: TextFormField(
+          decoration: InputDecoration(
               border: InputBorder.none,
               hintText: 'Enter a new Subject',
-              contentPadding: const EdgeInsets.all(20.0)
-            ),
-            controller: inputTextController,
-            scrollPadding: const EdgeInsets.all(20.0),
-            autofocus: true,
-            onTap: () => print("onTap"),
-            onChanged: (str) => print("onChanged:"+str),
-            onSaved: (str) => print("onSaved:"+str),
-            onEditingComplete: () => print("onEditingComp"),
-            onFieldSubmitted: (str) => print("onFS:"+str),
-            validator: (value) {
-              if (value.isEmpty){
-                return "Please input text!";
-              }
-              return null;
-            },
-          )
-        ),
+              contentPadding: const EdgeInsets.all(20.0)),
+          controller: inputTextController,
+          scrollPadding: const EdgeInsets.all(20.0),
+          autofocus: true,
+          validator: (value) {
+            if (value.isEmpty) {
+              return "Please input text!";
+            }
+            return null;
+          },
+        )),
         RaisedButton(
-          child: Text("Add"),
-          color: Colors.orange,
-          shape: StadiumBorder(),
-          onPressed: _validateInputs
-        ),
+            child: Text("Add"),
+            color: Colors.orange,
+            shape: StadiumBorder(),
+            onPressed: _validateInputs),
       ],
     );
   }
@@ -225,20 +212,18 @@ class _SubjectState extends State<SubjectList> {
     return Scaffold(
       appBar: Header(title: widget.title),
       body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: ListView.builder(
-          itemCount: _datas.length,
-          itemBuilder: (context, int index) {
-            return Padding(
-              padding: EdgeInsets.all(8.0),
-              child: subjectItem(_datas[index])
-            );
-          },
-        )
-      ),
+          onRefresh: _refresh,
+          child: ListView.builder(
+            itemCount: _datas.length,
+            itemBuilder: (context, int index) {
+              return Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: subjectItem(_datas[index]));
+            },
+          )),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: ()=> _showBottomForm(context),
+        onPressed: () => _showBottomForm(context),
       ),
     );
   }
