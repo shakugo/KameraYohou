@@ -7,10 +7,12 @@ import 'package:kamera_yohou/header.dart';
 import 'package:kamera_yohou/footer.dart';
 import 'package:kamera_yohou/menu.dart';
 
+// ignore: must_be_immutable
 class SpotList extends StatefulWidget {
   SpotList({Key key, this.title}) : super(key: key);
 
   final String title;
+  @visibleForTesting
   Client httpClient = Client();
 
   @override
@@ -25,11 +27,12 @@ class _ListPageState extends State<SpotList> {
   final logger = Logger();
 
   //API Gateway経由でユーザ情報を取得
-  void _getSubjectsByUser() async {
+  Future<void> _getSubjectsByUser() async {
     String url = DotEnv().env['API_BASE_URL'].toString() + "/user/1/subjects";
     String apiKey = DotEnv().env['API_KEY'];
 
-    widget.httpClient.get(url, headers: {'x-api-key': apiKey}).then((response) {
+    await widget.httpClient
+        .get(url, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
       if (response.statusCode == 200) {
@@ -52,13 +55,13 @@ class _ListPageState extends State<SpotList> {
   }
 
   //API Gateway経由でおすすめスポットの一覧を取得
-  void _getItems() async {
+  Future<void> _getItems() async {
     String url = DotEnv().env['API_BASE_URL'].toString() + "/spots";
     String apiKey = DotEnv().env['API_KEY'];
     Map<String, Object> reqBody = {"subjects": _subjects};
 
     //APIをたたいて、スポットの情報を全取得したい
-    widget.httpClient
+    await widget.httpClient
         .post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
         .then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
@@ -116,7 +119,7 @@ class _ListPageState extends State<SpotList> {
   Widget contents() {
     var scrollableView;
     //Sport itemが1件もない場合
-    if (_items.length == 0) {
+    if (_items.isEmpty) {
       scrollableView = LayoutBuilder(
           builder: (context, constraints) => SingleChildScrollView(
               physics: AlwaysScrollableScrollPhysics(),
@@ -128,14 +131,21 @@ class _ListPageState extends State<SpotList> {
     } else {
       scrollableView = ListView.builder(
         itemCount: _items.length,
-        itemBuilder: (context, int index) {
+        itemBuilder: (context, index) {
           return Padding(
               padding: EdgeInsets.all(8.0), child: spotItem(_items[index]));
         },
       );
     }
 
-    return new RefreshIndicator(onRefresh: _refresh, child: scrollableView);
+    return RefreshIndicator(onRefresh: _refresh, child: scrollableView);
+  }
+
+  //TODO: Error発生時の出力
+  void printError() {
+    if (_isError) {
+      logger.e(_errMsg);
+    }
   }
 
   @override

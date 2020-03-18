@@ -4,12 +4,12 @@ import 'package:kamera_yohou/spotList.dart';
 import 'package:kamera_yohou/currentLocation.dart';
 import 'package:kamera_yohou/subjectList.dart';
 
-void main() async {
+Future<void> main() async {
   await DotEnv().load('.env');
   runApp(MyApp());
   //TODO current locationの例
-  CurrentLocation currentLocation = new CurrentLocation();
-  currentLocation.getCurrentLocation();
+  CurrentLocation currentLocation = CurrentLocation();
+  await currentLocation.getCurrentLocation();
 }
 
 class MyApp extends StatelessWidget {
@@ -20,9 +20,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new SpotList(title: 'Spot List'),
+      home: SpotList(title: 'Spot List'),
       routes: <String, WidgetBuilder>{
-        '/register': (_) => new SubjectList(title: 'Favarites List'),
+        '/register': (_) => SubjectList(title: 'Favarites List'),
       },
     );
   }

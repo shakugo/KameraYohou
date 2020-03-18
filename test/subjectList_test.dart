@@ -10,14 +10,14 @@ void main() {
   String widgetTitle = 'Favarite List';
 
   group('UI', () {
-    testWidgets('SubjectList title', (WidgetTester tester) async {
+    testWidgets('SubjectList title', (tester) async {
       await tester
-          .pumpWidget(MaterialApp(home: new SubjectList(title: widgetTitle)));
+          .pumpWidget(MaterialApp(home: SubjectList(title: widgetTitle)));
       // title is 'Favarite List'
       expect(find.text(widgetTitle), findsOneWidget);
     });
 
-    testWidgets('Push the PLUS button', (WidgetTester tester) async {
+    testWidgets('Push the PLUS button', (tester) async {
       //   await tester.pumpWidget(MaterialApp(home: new SubjectList(title: widgetTitle)));
       //   expect(find.text('Add'), findsNothing);
       //   await tester.tap(find.byType(FloatingActionButton));
@@ -33,7 +33,7 @@ void main() {
   });
   group('API calling', () {
     group('GET', () {
-      testWidgets('Get data by one time', (WidgetTester tester) async {
+      testWidgets('Get data by one time', (tester) async {
         final mockClient = MockClient();
         final subjectList = SubjectList(title: widgetTitle);
         when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(
@@ -47,7 +47,7 @@ void main() {
         verify(mockClient.get(any, headers: anyNamed('headers'))).called(1);
       });
 
-      testWidgets('Get and output data ', (WidgetTester tester) async {
+      testWidgets('Get and output data ', (tester) async {
         final subjectList = SubjectList(title: widgetTitle);
         final mockClient = MockClient();
         when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(
@@ -64,8 +64,7 @@ void main() {
     });
 
     group('POST', () {
-      testWidgets('Push add button and request POST',
-          (WidgetTester tester) async {
+      testWidgets('Push add button and request POST', (tester) async {
         final mockClient = MockClient();
         final subjectList = SubjectList(title: widgetTitle);
         when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(
@@ -101,8 +100,7 @@ void main() {
       });
     });
     group('DELETE', () {
-      testWidgets('Push delete button and request DELETE',
-          (WidgetTester tester) async {
+      testWidgets('Push delete button and request DELETE', (tester) async {
         final mockClient = MockClient();
         final subjectList = SubjectList(title: widgetTitle);
         when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(

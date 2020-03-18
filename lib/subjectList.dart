@@ -62,8 +62,6 @@ class _SubjectState extends State<SubjectList> {
     widget.httpClient
         .post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
         .then((response) {
-      String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> resBody = json.decode(responseBody);
       _datas.add(subjectName);
       setState(() {
         _datas = _datas;
@@ -207,6 +205,13 @@ class _SubjectState extends State<SubjectList> {
     );
   }
 
+  //TODO: Error発生時の出力
+  void printError() {
+    if (_isError) {
+      logger.e(_errMsg);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -215,7 +220,7 @@ class _SubjectState extends State<SubjectList> {
           onRefresh: _refresh,
           child: ListView.builder(
             itemCount: _datas.length,
-            itemBuilder: (context, int index) {
+            itemBuilder: (context, index) {
               return Padding(
                   padding: EdgeInsets.all(8.0),
                   child: subjectItem(_datas[index]));
