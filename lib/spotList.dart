@@ -18,18 +18,49 @@ class SpotList extends StatefulWidget {
 }
 
 class _ListPageState extends State<SpotList> {
+  var _subjects = [];
   var _items = [];
   bool _isError;
   String _errMsg = "";
   final logger = Logger();
 
+  //API Gateway経由でユーザ情報を取得
+  void _getSubjectsByUser() async {
+    String url = DotEnv().env['API_BASE_URL'].toString() + "/user/1/subjects";
+    String apiKey = DotEnv().env['API_KEY'];
+
+    widget.httpClient.get(url, headers: {'x-api-key': apiKey}).then((response) {
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> body = json.decode(responseBody);
+      if (response.statusCode == 200) {
+        setState(() {
+          _subjects = body["Item"]["subjects"];
+          _isError = false;
+        });
+      } else {
+        setState(() {
+          _isError = true;
+          _errMsg = body["message"];
+        });
+      }
+    }).catchError((err) {
+      setState(() {
+        _isError = true;
+        _errMsg = err.toString();
+      });
+    });
+  }
+
   //API Gateway経由でおすすめスポットの一覧を取得
   void _getItems() async {
     String url = DotEnv().env['API_BASE_URL'].toString() + "/spots";
     String apiKey = DotEnv().env['API_KEY'];
+    Map<String, Object> reqBody = {"subjects": _subjects};
 
     //APIをたたいて、スポットの情報を全取得したい
-    widget.httpClient.get(url, headers: {'x-api-key': apiKey}).then((response) {
+    widget.httpClient
+        .post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
+        .then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> body = json.decode(responseBody);
       if (response.statusCode == 200) {
@@ -53,6 +84,7 @@ class _ListPageState extends State<SpotList> {
 
   Future<void> _refresh() async {
     await Future.sync(() {
+      _getSubjectsByUser();
       _getItems();
     });
   }
@@ -65,17 +97,13 @@ class _ListPageState extends State<SpotList> {
 
   Widget noItem() {
     return Center(
-      child: Column(
-        children: <Widget>[
-          Image.asset('images/rain_animated.gif'),
-          Text(
-            "No Recommended Spots...",
-            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0x55555555)),
-            textScaleFactor: 1.5
-          )
-        ]
-      )
-    );
+        child: Column(children: <Widget>[
+      Image.asset('images/rain_animated.gif'),
+      Text("No Recommended Spots...",
+          style:
+              TextStyle(fontWeight: FontWeight.bold, color: Color(0x55555555)),
+          textScaleFactor: 1.5)
+    ]));
   }
 
   Widget spotItem(item) {
@@ -91,31 +119,23 @@ class _ListPageState extends State<SpotList> {
     if (_items.length == 0) {
       scrollableView = LayoutBuilder(
           builder: (context, constraints) => SingleChildScrollView(
-            physics: AlwaysScrollableScrollPhysics(),
-            child: ConstrainedBox(
-              //Boxの高さを表示域限界に設定
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              //message and image Widget
-              child: noItem()
-            )
-          )
-      );
+              physics: AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                  //Boxの高さを表示域限界に設定
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  //message and image Widget
+                  child: noItem())));
     } else {
       scrollableView = ListView.builder(
         itemCount: _items.length,
         itemBuilder: (context, int index) {
           return Padding(
-            padding: EdgeInsets.all(8.0),
-            child: spotItem(_items[index])
-          );
+              padding: EdgeInsets.all(8.0), child: spotItem(_items[index]));
         },
       );
     }
 
-    return new RefreshIndicator(
-      onRefresh: _refresh,
-      child: scrollableView
-    );
+    return new RefreshIndicator(onRefresh: _refresh, child: scrollableView);
   }
 
   @override
