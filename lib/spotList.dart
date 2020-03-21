@@ -20,8 +20,8 @@ class SpotList extends StatefulWidget {
 }
 
 class _ListPageState extends State<SpotList> {
-  List<String> _subjects;
-  List<dynamic> _items = [];
+  List _subjects = [];
+  List _items = [];
   bool _isError;
   String _errMsg = "";
   final logger = Logger();
@@ -38,7 +38,7 @@ class _ListPageState extends State<SpotList> {
       dynamic body = json.decode(responseBody);
       if (response.statusCode == 200) {
         setState(() {
-          _subjects = body["Item"]["subjects"] as List<String>;
+          _subjects = body["Item"]["subjects"] as List;
           _isError = false;
         });
       } else {

@@ -26,7 +26,7 @@ class _SubjectState extends State<SubjectList> {
   //state
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
-  List<dynamic> _datas = [];
+  List _subjects = [];
   bool _isError;
   String _errMsg = "";
 
@@ -38,7 +38,7 @@ class _SubjectState extends State<SubjectList> {
       dynamic body = json.decode(responseBody);
       if (body['Item'] != null) {
         setState(() {
-          _datas = body["Item"]["subjects"] as List<dynamic>;
+          _subjects = body["Item"]["subjects"] as List;
           _isError = false;
         });
       } else {
@@ -65,9 +65,9 @@ class _SubjectState extends State<SubjectList> {
         .post(endpoint,
             headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
         .then((response) {
-      _datas.add(subjectName);
+      _subjects.add(subjectName);
       setState(() {
-        _datas = _datas;
+        _subjects = _subjects;
       });
     }).catchError((err) {
       setState(() {
@@ -118,7 +118,7 @@ class _SubjectState extends State<SubjectList> {
 
       if (response.statusCode == 200) {
         setState(() {
-          _datas = _datas.where((item) => (item != subjectName)).toList();
+          _subjects = _subjects.where((item) => (item != subjectName)).toList();
           _isError = false;
         });
       } else {
@@ -223,11 +223,11 @@ class _SubjectState extends State<SubjectList> {
       body: RefreshIndicator(
           onRefresh: _refresh,
           child: ListView.builder(
-            itemCount: _datas.length,
+            itemCount: _subjects.length,
             itemBuilder: (context, index) {
               return Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: subjectItem(_datas[index]));
+                  child: subjectItem(_subjects[index]));
             },
           )),
       floatingActionButton: FloatingActionButton(
