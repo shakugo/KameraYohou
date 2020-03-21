@@ -26,7 +26,7 @@ class _SubjectState extends State<SubjectList> {
   //state
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
-  List<String> _datas = [];
+  List<dynamic> _datas = [];
   bool _isError;
   String _errMsg = "";
 
@@ -38,7 +38,7 @@ class _SubjectState extends State<SubjectList> {
       dynamic body = json.decode(responseBody);
       if (body['Item'] != null) {
         setState(() {
-          _datas = body["Item"]["subjects"] as List<String>;
+          _datas = body["Item"]["subjects"] as List<dynamic>;
           _isError = false;
         });
       } else {
