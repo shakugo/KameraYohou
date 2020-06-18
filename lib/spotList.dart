@@ -7,10 +7,12 @@ import 'package:kamera_yohou/header.dart';
 import 'package:kamera_yohou/footer.dart';
 import 'package:kamera_yohou/menu.dart';
 
+// ignore: must_be_immutable
 class SpotList extends StatefulWidget {
   SpotList({Key key, this.title}) : super(key: key);
 
   final String title;
+  @visibleForTesting
   Client httpClient = Client();
 
   @override
@@ -18,29 +20,31 @@ class SpotList extends StatefulWidget {
 }
 
 class _ListPageState extends State<SpotList> {
-  var _subjects = [];
-  var _items = [];
+  List _subjects = [];
+  List _items = [];
   bool _isError;
   String _errMsg = "";
   final logger = Logger();
+  String baseUrl = DotEnv().env['API_BASE_URL'].toString();
+  String apiKey = DotEnv().env['API_KEY'];
 
   //API Gateway経由でユーザ情報を取得
-  void _getSubjectsByUser() async {
-    String url = DotEnv().env['API_BASE_URL'].toString() + "/user/1/subjects";
-    String apiKey = DotEnv().env['API_KEY'];
+  Future<void> _getSubjectsByUser() async {
+    String endpoint = baseUrl + "/user/1/subjects";
 
-    widget.httpClient.get(url, headers: {'x-api-key': apiKey}).then((response) {
+    await widget.httpClient
+        .get(endpoint, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> body = json.decode(responseBody);
+      dynamic body = json.decode(responseBody);
       if (response.statusCode == 200) {
         setState(() {
-          _subjects = body["Item"]["subjects"];
+          _subjects = body["Item"]["subjects"] as List;
           _isError = false;
         });
       } else {
         setState(() {
           _isError = true;
-          _errMsg = body["message"];
+          _errMsg = body["message"].toString();
         });
       }
     }).catchError((err) {
@@ -52,26 +56,26 @@ class _ListPageState extends State<SpotList> {
   }
 
   //API Gateway経由でおすすめスポットの一覧を取得
-  void _getItems() async {
-    String url = DotEnv().env['API_BASE_URL'].toString() + "/spots";
-    String apiKey = DotEnv().env['API_KEY'];
+  Future<void> _getItems() async {
+    String endpoint = baseUrl + "/spots";
     Map<String, Object> reqBody = {"subjects": _subjects};
 
     //APIをたたいて、スポットの情報を全取得したい
-    widget.httpClient
-        .post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
+    await widget.httpClient
+        .post(endpoint,
+            headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
         .then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> body = json.decode(responseBody);
+      dynamic body = json.decode(responseBody);
       if (response.statusCode == 200) {
         setState(() {
-          _items = body["Items"];
+          _items = body["Items"] as List;
           _isError = false;
         });
       } else {
         setState(() {
           _isError = true;
-          _errMsg = body["message"];
+          _errMsg = body["message"].toString();
         });
       }
     }).catchError((err) {
@@ -106,17 +110,17 @@ class _ListPageState extends State<SpotList> {
     ]));
   }
 
-  Widget spotItem(item) {
+  Widget spotItem(Map<String, dynamic> spot) {
     return Text(
-      item["spot_name"],
+      spot["spot_name"].toString(),
       style: TextStyle(fontSize: 20),
     );
   }
 
   Widget contents() {
-    var scrollableView;
+    Widget scrollableView;
     //Sport itemが1件もない場合
-    if (_items.length == 0) {
+    if (_items.isEmpty) {
       scrollableView = LayoutBuilder(
           builder: (context, constraints) => SingleChildScrollView(
               physics: AlwaysScrollableScrollPhysics(),
@@ -128,14 +132,21 @@ class _ListPageState extends State<SpotList> {
     } else {
       scrollableView = ListView.builder(
         itemCount: _items.length,
-        itemBuilder: (context, int index) {
+        itemBuilder: (context, index) {
           return Padding(
               padding: EdgeInsets.all(8.0), child: spotItem(_items[index]));
         },
       );
     }
 
-    return new RefreshIndicator(onRefresh: _refresh, child: scrollableView);
+    return RefreshIndicator(onRefresh: _refresh, child: scrollableView);
+  }
+
+  //TODO: Error発生時の出力
+  void printError() {
+    if (_isError) {
+      logger.e(_errMsg);
+    }
   }
 
   @override

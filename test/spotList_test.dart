@@ -6,18 +6,16 @@ import 'package:kamera_yohou/spotList.dart';
 
 class MockClient extends Mock implements http.Client {}
 
-void main() async {
+Future<void> main() async {
   String widgetTitle = 'Spot List';
   group('UI', () {
-    testWidgets('Spot List title', (WidgetTester tester) async {
-      await tester
-          .pumpWidget(MaterialApp(home: new SpotList(title: widgetTitle)));
+    testWidgets('Spot List title', (tester) async {
+      await tester.pumpWidget(MaterialApp(home: SpotList(title: widgetTitle)));
       // Title shoud be Spot List
       expect(find.text(widgetTitle), findsOneWidget);
     });
-    testWidgets('Open drawer menu', (WidgetTester tester) async {
-      await tester
-          .pumpWidget(MaterialApp(home: new SpotList(title: widgetTitle)));
+    testWidgets('Open drawer menu', (tester) async {
+      await tester.pumpWidget(MaterialApp(home: SpotList(title: widgetTitle)));
       //Menu should be CLOSED when starting app
       expect(find.byType(Drawer), findsNothing);
 
@@ -34,7 +32,7 @@ void main() async {
   });
 
   group('API calling', () {
-    testWidgets('Get data by one time', (WidgetTester tester) async {
+    testWidgets('Get data by one time', (tester) async {
       final mockClient = MockClient();
       final spotList = SpotList(title: widgetTitle);
       when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(
@@ -55,7 +53,7 @@ void main() async {
       verify(mockClient.get(any, headers: anyNamed('headers'))).called(1);
     });
 
-    testWidgets('Get and output data ', (WidgetTester tester) async {
+    testWidgets('Get and output data ', (tester) async {
       final spotList = SpotList(title: widgetTitle);
       final mockClient = MockClient();
       when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(
@@ -74,7 +72,7 @@ void main() async {
       expect(find.text('ABCDEFG'), findsOneWidget);
     });
 
-    testWidgets('NO items message', (WidgetTester tester) async {
+    testWidgets('NO items message', (tester) async {
       final spotList = SpotList(title: widgetTitle);
       final mockClient = MockClient();
       when(mockClient.get(any, headers: anyNamed('headers'))).thenAnswer(

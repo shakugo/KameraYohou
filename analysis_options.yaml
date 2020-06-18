@@ -4,7 +4,8 @@ analyzer:
   strong-mode:
     implicit-casts: true # true is easy, false is hard
     implicit-dynamic: true # We should try hard mode!
-
+  errors:
+    must_be_immutable: ignore #for testing
 linter:
   rules:
     - avoid_types_on_closure_parameters

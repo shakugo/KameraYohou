@@ -17,7 +17,8 @@ class SubjectList extends StatefulWidget {
 }
 
 class _SubjectState extends State<SubjectList> {
-  String url = DotEnv().env['API_BASE_URL'].toString() + "/user/1/subjects";
+  String endpoint =
+      DotEnv().env['API_BASE_URL'].toString() + "/user/1/subjects";
   String apiKey = DotEnv().env['API_KEY'];
   final logger = Logger();
   final inputTextController = TextEditingController();
@@ -25,24 +26,25 @@ class _SubjectState extends State<SubjectList> {
   //state
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
-  var _datas = [];
+  List _subjects = [];
   bool _isError;
   String _errMsg = "";
 
   //API Gateway経由で登録済み被写体の一覧を取得
   void _getSubjects() {
-    widget.httpClient.get(url, headers: {'x-api-key': apiKey}).then((response) {
+    widget.httpClient
+        .get(endpoint, headers: {'x-api-key': apiKey}).then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> body = json.decode(responseBody);
+      dynamic body = json.decode(responseBody);
       if (body['Item'] != null) {
         setState(() {
-          _datas = body["Item"]["subjects"];
+          _subjects = body["Item"]["subjects"] as List;
           _isError = false;
         });
       } else {
         setState(() {
           _isError = true;
-          _errMsg = body["message"];
+          _errMsg = body["message"].toString();
         });
       }
     }).catchError((err) {
@@ -60,13 +62,12 @@ class _SubjectState extends State<SubjectList> {
 
     //リクエストの送信
     widget.httpClient
-        .post(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
+        .post(endpoint,
+            headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
         .then((response) {
-      String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> resBody = json.decode(responseBody);
-      _datas.add(subjectName);
+      _subjects.add(subjectName);
       setState(() {
-        _datas = _datas;
+        _subjects = _subjects;
       });
     }).catchError((err) {
       setState(() {
@@ -109,20 +110,21 @@ class _SubjectState extends State<SubjectList> {
   void _deleteSubject(String subjectName) {
     Map<String, Object> reqBody = {"subject_name": subjectName};
     widget.httpClient
-        .put(url, headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
+        .put(endpoint,
+            headers: {'x-api-key': apiKey}, body: json.encode(reqBody))
         .then((response) {
       String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> body = json.decode(responseBody);
+      dynamic body = json.decode(responseBody);
 
       if (response.statusCode == 200) {
         setState(() {
-          _datas = _datas.where((item) => (item != subjectName)).toList();
+          _subjects = _subjects.where((item) => (item != subjectName)).toList();
           _isError = false;
         });
       } else {
         setState(() {
           _isError = true;
-          _errMsg = body["message"];
+          _errMsg = body["message"].toString();
         });
       }
     }).catchError((err) {
@@ -136,7 +138,7 @@ class _SubjectState extends State<SubjectList> {
   //最下部から出現するアレ
   void _showBottomForm(BuildContext context) {
     inputTextController.clear();
-    showModalBottomSheet(
+    showModalBottomSheet<Widget>(
         context: context,
         // isScrollControlled: true,
         shape: RoundedRectangleBorder(
@@ -158,7 +160,7 @@ class _SubjectState extends State<SubjectList> {
   }
 
   //Item
-  Widget subjectItem(item) {
+  Widget subjectItem(String item) {
     return Row(children: <Widget>[
       Expanded(
         child: Text(
@@ -207,6 +209,13 @@ class _SubjectState extends State<SubjectList> {
     );
   }
 
+  //TODO: Error発生時の出力
+  void printError() {
+    if (_isError) {
+      logger.e(_errMsg);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -214,11 +223,11 @@ class _SubjectState extends State<SubjectList> {
       body: RefreshIndicator(
           onRefresh: _refresh,
           child: ListView.builder(
-            itemCount: _datas.length,
-            itemBuilder: (context, int index) {
+            itemCount: _subjects.length,
+            itemBuilder: (context, index) {
               return Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: subjectItem(_datas[index]));
+                  child: subjectItem(_subjects[index]));
             },
           )),
       floatingActionButton: FloatingActionButton(
